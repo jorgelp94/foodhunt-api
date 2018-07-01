@@ -14,3 +14,4 @@ final class Restaurant: Codable {
 extension Restaurant: PostgreSQLModel {}
 extension Restaurant: Migration {}
 extension Restaurant: Content {}
+extension Restaurant: Parameter {}
