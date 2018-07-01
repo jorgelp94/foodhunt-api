@@ -11,6 +11,7 @@ struct RestaurantsController: RouteCollection {
         restaurantsRoutes.put(Restaurant.parameter, use: updateHandler)
         restaurantsRoutes.delete(Restaurant.parameter, use: deleteHandler)
         restaurantsRoutes.get("search", use: searchHandler)
+        restaurantsRoutes.get(Restaurant.parameter, "user", use: getUserHandler)
     }
     
     func getAllHandler(_ req: Request) throws -> Future<[Restaurant]> {
@@ -28,6 +29,7 @@ struct RestaurantsController: RouteCollection {
     func updateHandler(_ req: Request) throws -> Future<Restaurant> {
         return try flatMap(to: Restaurant.self, req.parameters.next(Restaurant.self), req.content.decode(Restaurant.self), { (restaurant, updatedRestaurant) in
             restaurant.name = updatedRestaurant.name
+            restaurant.userID = updatedRestaurant.userID
             return restaurant.save(on: req)
         })
     }
@@ -41,5 +43,11 @@ struct RestaurantsController: RouteCollection {
             throw Abort(.badRequest)
         }
         return Restaurant.query(on: req).filter(\.name == searchTerm).all()
+    }
+    
+    func getUserHandler(_ req: Request) throws -> Future<User> {
+        return try req.parameters.next(Restaurant.self).flatMap(to: User.self) { restaurant in
+            try restaurant.user.get(on: req)
+        }
     }
 }
