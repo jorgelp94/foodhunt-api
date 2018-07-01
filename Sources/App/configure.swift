@@ -53,4 +53,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     migrations.add(model: Restaurant.self, database: .psql)
     services.register(migrations)
 
+    var commandConfig = CommandConfig.default()
+    commandConfig.use(RevertCommand.self, as: "revert")
+    services.register(commandConfig)
 }
