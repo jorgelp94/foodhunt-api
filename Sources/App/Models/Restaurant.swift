@@ -1,6 +1,6 @@
 
 import Vapor
-import FluentSQLite
+import FluentPostgreSQL
 
 final class Restaurant: Codable {
     var id: Int?
@@ -11,11 +11,6 @@ final class Restaurant: Codable {
     }
 }
 
-extension Restaurant: Model {
-    typealias Database = SQLiteDatabase
-    typealias ID = Int
-    
-    public static var idKey: IDKey = \Restaurant.id
-}
+extension Restaurant: PostgreSQLModel {}
 extension Restaurant: Migration {}
 extension Restaurant: Content {}
