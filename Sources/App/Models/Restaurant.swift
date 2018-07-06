@@ -21,6 +21,10 @@ extension Restaurant {
     var user: Parent<Restaurant, User> {
         return parent(\.userID)
     }
+    
+    var categories: Siblings<Restaurant, Category, RestaurantCategoryPivot> {
+        return siblings()
+    }
 }
 
 extension Restaurant: Migration {

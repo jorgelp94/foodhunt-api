@@ -12,6 +12,8 @@ struct RestaurantsController: RouteCollection {
         restaurantsRoutes.delete(Restaurant.parameter, use: deleteHandler)
         restaurantsRoutes.get("search", use: searchHandler)
         restaurantsRoutes.get(Restaurant.parameter, "user", use: getUserHandler)
+        restaurantsRoutes.post(Restaurant.parameter, "categories", Category.parameter, use: addCategoriesHandler)
+        restaurantsRoutes.get(Restaurant.parameter, "categories", use: getCategoriesHandler)
     }
     
     func getAllHandler(_ req: Request) throws -> Future<[Restaurant]> {
@@ -48,6 +50,19 @@ struct RestaurantsController: RouteCollection {
     func getUserHandler(_ req: Request) throws -> Future<User> {
         return try req.parameters.next(Restaurant.self).flatMap(to: User.self) { restaurant in
             try restaurant.user.get(on: req)
+        }
+    }
+    
+    func addCategoriesHandler(_ req: Request) throws -> Future<HTTPStatus> {
+        return try flatMap(to: HTTPStatus.self, req.parameters.next(Restaurant.self), req.parameters.next(Category.self), { (restaurant, category) in
+            let pivot = try RestaurantCategoryPivot(restaurant.requireID(), category.requireID())
+            return pivot.save(on: req).transform(to: .created)
+        })
+    }
+    
+    func getCategoriesHandler(_ req: Request) throws -> Future<[Category]> {
+        return try req.parameters.next(Restaurant.self).flatMap(to: [Category].self) { restaurant in
+            try restaurant.categories.query(on: req).all()
         }
     }
 }
